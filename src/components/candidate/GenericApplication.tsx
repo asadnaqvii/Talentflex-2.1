@@ -130,7 +130,7 @@ function FileUploadZone({
 
   return (
     <label
-      className={`border-2 border-dashed rounded-xl p-6 cursor-pointer transition-colors ${
+      className={`block w-full border-2 border-dashed rounded-xl p-8 cursor-pointer transition-colors ${
         isUploading
           ? 'border-[#3D80F8] bg-[#EFF5FF]'
           : 'border-[#EDEDED] hover:border-[#3D80F8] hover:bg-[#FAFAFA]'
@@ -145,21 +145,21 @@ function FileUploadZone({
       />
       <div className="flex flex-col items-center text-center">
         {isUploading ? (
-          <Loader2 className="w-10 h-10 text-[#3D80F8] animate-spin mb-3" />
+          <Loader2 className="w-12 h-12 text-[#3D80F8] animate-spin mb-4" />
         ) : (
-          <div className="w-12 h-12 bg-[#F6F6F6] rounded-lg flex items-center justify-center mb-3 text-[#676767]">
+          <div className="w-16 h-16 bg-[#F6F6F6] rounded-xl flex items-center justify-center mb-4 text-[#676767]">
             {icon}
           </div>
         )}
-        <p className="font-medium text-[#1A1A1A] mb-1">
+        <p className="text-lg font-medium text-[#1A1A1A] mb-2">
           {isUploading ? 'Uploading...' : label}
         </p>
-        <p className="text-sm text-[#676767] mb-3">{description}</p>
+        <p className="text-sm text-[#676767] mb-4">{description}</p>
         {!isUploading && (
-          <div className="flex items-center gap-2 text-[#3D80F8]">
+          <div className="flex items-center gap-2 px-4 py-2 bg-[#3D80F8] text-white rounded-lg hover:bg-[#2D6DE8] transition-colors">
             <Upload className="w-4 h-4" />
             <span className="text-sm font-medium">
-              Click to upload {required && <span className="text-red-500">*</span>}
+              Choose File {required && <span className="text-red-200">*</span>}
             </span>
           </div>
         )}
@@ -184,19 +184,89 @@ export default function GenericApplication() {
     // Simulate upload delay
     await new Promise((resolve) => setTimeout(resolve, 2000));
     setUploadingFile(null);
-    // In production, would call API to upload file
+
+    // Update application state with the new file (mock for demo)
+    setApplication(prev => {
+      if (!prev) {
+        // Create new application if none exists
+        return {
+          id: '1',
+          candidateId: 'user-1',
+          status: 'incomplete',
+          analysisStatus: 'pending',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          ...(fileType === 'video' && { videoUrl: URL.createObjectURL(file), videoFilename: file.name }),
+          ...(fileType === 'resume' && { resumeUrl: URL.createObjectURL(file), resumeFilename: file.name }),
+          ...(fileType === 'portfolio' && { portfolioUrl: URL.createObjectURL(file), portfolioFilename: file.name }),
+        } as GenericApplicationType;
+      }
+
+      // Update existing application
+      const updated = { ...prev, updatedAt: new Date().toISOString() };
+      if (fileType === 'video') {
+        updated.videoUrl = URL.createObjectURL(file);
+        updated.videoFilename = file.name;
+      } else if (fileType === 'resume') {
+        updated.resumeUrl = URL.createObjectURL(file);
+        updated.resumeFilename = file.name;
+      } else if (fileType === 'portfolio') {
+        updated.portfolioUrl = URL.createObjectURL(file);
+        updated.portfolioFilename = file.name;
+      }
+
+      // Check if we have minimum required files
+      if (updated.videoUrl && updated.resumeUrl) {
+        updated.status = 'complete';
+      }
+
+      return updated;
+    });
+
+    // Move to draft state if we were in empty state
+    if (demoState === 'empty') {
+      setDemoState('draft');
+    }
   };
 
   const handleAnalyze = async () => {
     setIsAnalyzing(true);
     // Simulate analysis delay
     await new Promise((resolve) => setTimeout(resolve, 3000));
+
+    // Update application status to analyzed
+    setApplication(prev => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        status: 'analyzed' as const,
+        analysisStatus: 'completed' as const,
+      };
+    });
+
+    // Set the analysis results (mock data for demo)
+    setAnalysis(mockAnalysis);
     setIsAnalyzing(false);
     setDemoState('analyzed');
   };
 
   const handleReplace = (fileType: string) => {
-    // In production, would reset status to 'draft' and clear analysis
+    // Clear the specific file and reset to draft
+    setApplication(prev => {
+      if (!prev) return prev;
+      const updated = { ...prev, status: 'incomplete' as const, analysisStatus: 'pending' as const };
+      if (fileType === 'video') {
+        updated.videoUrl = undefined;
+        updated.videoFilename = undefined;
+      } else if (fileType === 'resume') {
+        updated.resumeUrl = undefined;
+        updated.resumeFilename = undefined;
+      } else if (fileType === 'portfolio') {
+        updated.portfolioUrl = undefined;
+        updated.portfolioFilename = undefined;
+      }
+      return updated;
+    });
     setDemoState('draft');
     setAnalysis(null);
   };
@@ -211,7 +281,8 @@ export default function GenericApplication() {
     { label: 'Skills', value: (analysis?.cvSkillsBreadthScore || 0) * 10 },
   ];
 
-  const showAnalysis = demoState === 'analyzed' && analysis;
+  // Show analysis when we have analysis results (either from demo state or after analyze)
+  const showAnalysis = (application?.status === 'analyzed' || demoState === 'analyzed') && analysis;
 
   return (
     <DashboardLayout userRole="candidate">
@@ -457,8 +528,8 @@ export default function GenericApplication() {
                   icon={<Video className="w-6 h-6" />}
                   accept="video/mp4,video/quicktime"
                   currentFile={
-                    demoState === 'draft' && application?.videoFilename
-                      ? { name: application.videoFilename }
+                    application?.videoFilename
+                      ? { name: application.videoFilename, url: application.videoUrl }
                       : undefined
                   }
                   isUploading={uploadingFile === 'video'}
@@ -481,8 +552,8 @@ export default function GenericApplication() {
                   icon={<FileText className="w-6 h-6" />}
                   accept="application/pdf"
                   currentFile={
-                    demoState === 'draft' && application?.resumeFilename
-                      ? { name: application.resumeFilename }
+                    application?.resumeFilename
+                      ? { name: application.resumeFilename, url: application.resumeUrl }
                       : undefined
                   }
                   isUploading={uploadingFile === 'resume'}
@@ -504,17 +575,18 @@ export default function GenericApplication() {
                   accept="application/pdf"
                   currentFile={
                     application?.portfolioFilename
-                      ? { name: application.portfolioFilename }
+                      ? { name: application.portfolioFilename, url: application.portfolioUrl }
                       : undefined
                   }
                   isUploading={uploadingFile === 'portfolio'}
                   onUpload={(file) => handleFileUpload('portfolio', file)}
+                  onReplace={() => handleReplace('portfolio')}
                   required={false}
                 />
               </div>
 
               {/* Analyze Button */}
-              {demoState === 'draft' && (
+              {application?.videoUrl && application?.resumeUrl && (
                 <div className="pt-4">
                   <button
                     onClick={handleAnalyze}

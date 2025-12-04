@@ -35,7 +35,7 @@ export default function TopBar({ title = "Dashboard", showBack = false, onBackCl
   };
 
   return (
-    <div className="flex justify-between items-center px-4 lg:px-8 py-4 lg:py-6 bg-white border-b border-[#EDEDED] relative">
+    <div className="flex justify-between items-center px-4 lg:px-8 py-4 lg:py-6 bg-white border-b border-[#EDEDED] relative rounded-tl-3xl">
       {/* Title - Hidden on mobile as we have mobile header */}
       <div className="hidden lg:flex items-center gap-6">
         {showBack && (

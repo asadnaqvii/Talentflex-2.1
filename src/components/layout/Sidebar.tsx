@@ -88,7 +88,7 @@ const settingsItems: MenuItem[] = [
   {
     href: '/settings',
     label: 'Settings',
-    icon: '/icons/cog.svg',
+    icon: '/icons/adjustments.svg',
   },
 ];
 
@@ -136,16 +136,16 @@ export default function Sidebar({ className, onClose, isMobile = false, userRole
       className
     )}>
       {/* Logo and Close Button for Mobile */}
-      <div className="p-5 flex items-center justify-between sticky top-0 bg-[#010917] z-10">
+      <div className="px-5 pt-8 pb-6 flex items-center justify-between sticky top-0 bg-[#010917] z-10">
         {!isMobile ? (
           <Link href={userRole === 'employer' ? '/employer' : userRole === 'internal' ? '/admin' : '/candidate'}>
-            <h1 className="text-4xl font-bold leading-[0.67] tracking-[-5%] text-white cursor-pointer hover:opacity-90 transition-opacity">
+            <h1 className="text-[28px] font-bold tracking-tight text-white cursor-pointer hover:opacity-90 transition-opacity">
               Talent Flex
             </h1>
           </Link>
         ) : (
           <>
-            <span className="text-sm text-[#C3C3C3] uppercase tracking-wide">
+            <span className="text-sm text-[#C3C3C3]">
               {getRoleLabel(userRole)}
             </span>
             {onClose && (
@@ -165,10 +165,10 @@ export default function Sidebar({ className, onClose, isMobile = false, userRole
 
       {/* Menu */}
       <div className="flex-1 px-5">
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Main Menu */}
-          <div className="space-y-3">
-            <h3 className="text-xs text-[#C3C3C3] uppercase tracking-wide">
+          <div className="space-y-4">
+            <h3 className="text-sm text-[#8B8B8B] font-normal">
               Main Menu
             </h3>
             <div className="space-y-1">
@@ -202,8 +202,8 @@ export default function Sidebar({ className, onClose, isMobile = false, userRole
           </div>
 
           {/* Settings */}
-          <div className="space-y-3">
-            <h3 className="text-xs text-[#C3C3C3] uppercase tracking-wide">
+          <div className="space-y-4">
+            <h3 className="text-sm text-[#8B8B8B] font-normal">
               Account
             </h3>
             <div className="space-y-1">

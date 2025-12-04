@@ -132,9 +132,9 @@ export default function ApplicationCandidateView({
   const showAnalysisView = (application.status === 'analyzed' || application.status === 'submitted') && analysis;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white rounded-tl-3xl">
       {/* Top Bar */}
-      <div className="flex items-center justify-between px-6 lg:px-8 py-4 lg:py-6 border-b border-[#EDEDED] sticky top-0 bg-white z-20">
+      <div className="flex items-center justify-between px-6 lg:px-8 py-4 lg:py-6 border-b border-[#EDEDED] sticky top-0 bg-white z-20 rounded-tl-3xl">
         <div className="flex items-center gap-4">
           <Link href="/candidate" className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[#F6F6F6] transition-colors">
             <ChevronLeft className="w-5 h-5 text-[#1A1A1A]" />

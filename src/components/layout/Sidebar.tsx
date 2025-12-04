@@ -128,9 +128,15 @@ export default function Sidebar({ className, onClose, isMobile = false, userRole
   const { main: mainMenuItems, settings: settingsMenuItems } = getMenuItemsForRole(userRole);
 
   const isActiveRoute = (href: string) => {
+    // Exact match for dashboard routes
     if (href === '/candidate' || href === '/employer' || href === '/admin') {
       return pathname === href;
     }
+    // Exact match for single-page routes (no sub-routes)
+    if (href === '/candidate/application' || href === '/notifications' || href === '/settings') {
+      return pathname === href;
+    }
+    // For routes with sub-pages, use startsWith
     return pathname.startsWith(href);
   };
 

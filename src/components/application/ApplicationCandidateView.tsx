@@ -14,7 +14,7 @@ import {
   RefreshCw,
   Play,
 } from 'lucide-react';
-import { JobApplication, ApplicationFile, ApplicationAnalysis, ApplicationStatus } from '@/types';
+import { JobApplication, ApplicationFile, ApplicationAnalysis, ApplicationStatus, GenericApplication, GenericApplicationAnalysis } from '@/types';
 import CircularProgress from '@/components/ui/CircularProgress';
 import RadarChart from '@/components/ui/RadarChart';
 import ProgressBar from '@/components/ui/ProgressBar';
@@ -23,35 +23,56 @@ interface ApplicationCandidateViewProps {
   application: JobApplication;
   files: ApplicationFile[];
   analysis?: ApplicationAnalysis;
+  genericApplication?: GenericApplication;
+  genericAnalysis?: GenericApplicationAnalysis;
   onFileUpload: (fileType: string, file: File) => Promise<void>;
   onAnalyze: () => Promise<void>;
   onSubmit: () => Promise<void>;
   onReplaceFile: (fileType: string) => void;
+  onUseGenericApplication?: () => Promise<void>;
 }
 
 export default function ApplicationCandidateView({
   application,
   files,
   analysis,
+  genericApplication,
+  genericAnalysis,
   onFileUpload,
   onAnalyze,
   onSubmit,
   onReplaceFile,
+  onUseGenericApplication,
 }: ApplicationCandidateViewProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingFile, setUploadingFile] = useState<string | null>(null);
   const [jobDropdownOpen, setJobDropdownOpen] = useState(false);
+  const [applicationMode, setApplicationMode] = useState<'choice' | 'generic' | 'custom'>(
+    application.usesGenericApplication ? 'generic' :
+    (files.length > 0 || application.status !== 'draft') ? 'custom' : 'choice'
+  );
+
+  // Check if generic application is complete and analyzed
+  const hasCompleteGenericApplication =
+    genericApplication?.status === 'analyzed' &&
+    genericApplication?.videoUrl &&
+    genericApplication?.resumeUrl;
 
   const getFileByType = (type: string) => files.find((f) => f.fileType === type);
   const videoFile = getFileByType('video');
   const resumeFile = getFileByType('resume');
   const caseStudyFile = getFileByType('case_study');
 
-  const allRequiredFilesUploaded =
-    (!application.requiresVideo || videoFile) &&
-    (!application.requiresResume || resumeFile) &&
-    (!application.requiresCaseStudy || caseStudyFile);
+  // Check if all required files are ready
+  // When using generic application, video and resume come from there
+  const allRequiredFilesUploaded = applicationMode === 'generic'
+    ? (hasCompleteGenericApplication && (!application.requiresCaseStudy || caseStudyFile))
+    : (
+      (!application.requiresVideo || videoFile) &&
+      (!application.requiresResume || resumeFile) &&
+      (!application.requiresCaseStudy || caseStudyFile)
+    );
 
   const handleFileChange = async (fileType: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -442,16 +463,155 @@ export default function ApplicationCandidateView({
               </div>
             </div>
           </div>
+        ) : applicationMode === 'choice' ? (
+          /* Application Mode Choice */
+          <div className="max-w-3xl">
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">How would you like to apply?</h2>
+              <p className="text-[#676767]">
+                Choose to use your existing application materials or create a custom application for this role.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Option A: Use Generic Application */}
+              <button
+                onClick={() => {
+                  if (hasCompleteGenericApplication && onUseGenericApplication) {
+                    onUseGenericApplication();
+                    setApplicationMode('generic');
+                  }
+                }}
+                disabled={!hasCompleteGenericApplication}
+                className={`p-6 rounded-2xl text-left transition-all ${
+                  hasCompleteGenericApplication
+                    ? 'bg-gradient-to-br from-[#EFF5FF] to-[#F3E8FF] border-2 border-[#3D80F8] hover:shadow-lg cursor-pointer'
+                    : 'bg-[#F6F6F6] border-2 border-[#EDEDED] cursor-not-allowed opacity-60'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    hasCompleteGenericApplication ? 'bg-[#3D80F8]' : 'bg-[#ACACAF]'
+                  }`}>
+                    <Check className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[#1A1A1A]">Use My Application</h3>
+                    <p className="text-sm text-[#676767]">Quick apply with existing files</p>
+                  </div>
+                </div>
+
+                {hasCompleteGenericApplication ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-[#2E7D32]">
+                      <Check className="w-4 h-4" />
+                      <span>Video introduction ready</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-[#2E7D32]">
+                      <Check className="w-4 h-4" />
+                      <span>Resume/CV uploaded</span>
+                    </div>
+                    {application.requiresCaseStudy && (
+                      <div className="flex items-center gap-2 text-sm text-[#E65100]">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>Case study required for this job</span>
+                      </div>
+                    )}
+                    <div className="mt-4 p-3 bg-white rounded-lg">
+                      <p className="text-xs text-[#676767]">
+                        Your generic application score: <span className="font-bold text-[#3D80F8]">{genericAnalysis?.overallScore || 85}%</span>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm text-[#676767]">
+                      You haven&apos;t set up your generic application yet.
+                    </p>
+                    <Link
+                      href="/candidate/application"
+                      className="inline-flex items-center gap-1 text-sm text-[#3D80F8] hover:underline"
+                    >
+                      Set it up now →
+                    </Link>
+                  </div>
+                )}
+              </button>
+
+              {/* Option B: Custom Application */}
+              <button
+                onClick={() => setApplicationMode('custom')}
+                className="p-6 rounded-2xl text-left bg-white border-2 border-[#EDEDED] hover:border-[#3D80F8] hover:shadow-lg transition-all"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-[#1A1A1A] flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[#1A1A1A]">Custom Application</h3>
+                    <p className="text-sm text-[#676767]">Tailored for this specific role</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm text-[#676767]">
+                    <Video className="w-4 h-4" />
+                    <span>Upload role-specific video</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-[#676767]">
+                    <FileText className="w-4 h-4" />
+                    <span>Upload tailored resume</span>
+                  </div>
+                  {application.requiresCaseStudy && (
+                    <div className="flex items-center gap-2 text-sm text-[#676767]">
+                      <FileText className="w-4 h-4" />
+                      <span>Upload case study</span>
+                    </div>
+                  )}
+                  <div className="mt-4 p-3 bg-[#F6F6F6] rounded-lg">
+                    <p className="text-xs text-[#676767]">
+                      Customize your application to match job requirements for potentially higher scores.
+                    </p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
         ) : (
           /* Upload/Draft View */
           <div className="max-w-3xl">
+            {/* Mode Switch */}
+            {application.status === 'draft' && files.length === 0 && (
+              <button
+                onClick={() => setApplicationMode('choice')}
+                className="mb-6 text-sm text-[#3D80F8] hover:underline flex items-center gap-1"
+              >
+                ← Back to application options
+              </button>
+            )}
+
+            {/* Using Generic Application Notice */}
+            {applicationMode === 'generic' && (
+              <div className="mb-6 p-4 bg-[#EFF5FF] border border-[#3D80F8]/20 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <Check className="w-5 h-5 text-[#3D80F8]" />
+                  <div>
+                    <p className="font-medium text-[#1A1A1A]">Using your generic application</p>
+                    <p className="text-sm text-[#676767]">Your video and resume from your master application will be used.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* File Upload Section */}
             <div className="bg-[#F6F6F6] rounded-2xl p-6 lg:p-8 mb-6">
-              <h2 className="text-lg font-bold text-[#1A1A1A] mb-6">Upload Your Documents</h2>
+              <h2 className="text-lg font-bold text-[#1A1A1A] mb-6">
+                {applicationMode === 'generic' ? 'Additional Documents' : 'Upload Your Documents'}
+              </h2>
 
               <div className="space-y-4">
-                {/* Video Upload */}
-                {application.requiresVideo && (
+                {/* Video Upload - Skip if using generic */}
+                {application.requiresVideo && applicationMode !== 'generic' && (
                   <FileUploadCard
                     title="Video Introduction"
                     description="Upload a 5-10 minute video (max 500MB)"
@@ -465,8 +625,8 @@ export default function ApplicationCandidateView({
                   />
                 )}
 
-                {/* Resume Upload */}
-                {application.requiresResume && (
+                {/* Resume Upload - Skip if using generic */}
+                {application.requiresResume && applicationMode !== 'generic' && (
                   <FileUploadCard
                     title="Resume / CV"
                     description="Upload your resume in PDF format (max 5MB)"
@@ -480,7 +640,7 @@ export default function ApplicationCandidateView({
                   />
                 )}
 
-                {/* Case Study Upload */}
+                {/* Case Study Upload - Always show if required */}
                 {application.requiresCaseStudy && (
                   <FileUploadCard
                     title="Case Study"

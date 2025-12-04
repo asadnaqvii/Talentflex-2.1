@@ -101,6 +101,9 @@ export interface JobApplication {
   candidateId?: string;
   status: ApplicationStatus;
   analysisStatus: AnalysisStatus;
+  // Link to generic application (if using generic video/resume)
+  usesGenericApplication?: boolean;
+  genericApplicationId?: string;
   submittedAt?: string;
   createdAt: string;
   updatedAt: string;
@@ -195,6 +198,66 @@ export interface Notification {
   read: boolean;
   readAt?: string;
   createdAt: string;
+}
+
+// ============================================
+// GENERIC APPLICATION (MASTER PROFILE)
+// ============================================
+
+export type GenericApplicationStatus = 'incomplete' | 'complete' | 'analyzed';
+
+export interface GenericApplication {
+  id: string;
+  candidateId: string;
+
+  // Files
+  videoUrl?: string;
+  videoFilename?: string;
+  videoDurationSeconds?: number;
+  videoTranscription?: string;
+
+  resumeUrl?: string;
+  resumeFilename?: string;
+
+  portfolioUrl?: string;
+  portfolioFilename?: string;
+
+  // Status
+  status: GenericApplicationStatus;
+  analysisStatus: AnalysisStatus;
+
+  // Metadata
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GenericApplicationAnalysis {
+  id: string;
+  genericApplicationId: string;
+
+  // Video scores (1-10) - General assessment
+  videoCommunicationScore?: number;
+  videoClarityScore?: number;
+  videoConfidenceScore?: number;
+  videoOverallScore?: number;
+
+  // CV scores (1-10) - General assessment
+  cvPresentationScore?: number;
+  cvExperienceDepthScore?: number;
+  cvSkillsBreadthScore?: number;
+  cvOverallScore?: number;
+
+  // Overall
+  overallScore: number;
+  aiSummary: string;
+  suggestedJobTypes?: string[];
+  keyStrengths?: string[];
+  areasForImprovement?: string[];
+
+  // Metadata
+  processingTimeMs?: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // ============================================

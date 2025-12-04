@@ -4,6 +4,7 @@
 
 Phase 2.1 builds the core TalentFlex platform with:
 - **Application link system** for candidates to submit video, CV, and case study
+- **Generic application** (master profile) for quick reusable applications
 - **AI-powered analysis** scoring candidates on multiple dimensions
 - **Employer review portal** with interest/reject/schedule actions
 - **Internal admin dashboard** for pipeline management
@@ -21,13 +22,20 @@ Phase 2.1 builds the core TalentFlex platform with:
 | **AUTH-3** | LinkedIn OAuth integration | P0 | 2 |
 | **AUTH-4** | Account linking (auto-link by email) | P0 | 2 |
 | **AUTH-5** | Role detection from signup context | P0 | 1 |
+| **GAPP-1** | Generic application - create/view | P0 | 2 |
+| **GAPP-2** | Generic application - video upload | P0 | 2 |
+| **GAPP-3** | Generic application - resume upload | P0 | 2 |
+| **GAPP-4** | Generic application - portfolio upload (optional) | P2 | 3 |
+| **GAPP-5** | Generic application - AI analysis | P0 | 2 |
+| **GAPP-6** | Generic application - suggested roles | P1 | 3 |
 | **APP-1** | Application link public preview (guest) | P0 | 1 |
 | **APP-2** | Candidate claims application on signup/login | P0 | 1 |
-| **APP-3** | File upload - Video (MP4/WebM, 500MB, 10min) | P0 | 2 |
-| **APP-4** | File upload - Resume PDF (5MB) | P0 | 2 |
-| **APP-5** | File upload - Case Study PDF (10MB) | P0 | 2 |
-| **APP-6** | Save as draft / Submit application | P0 | 2 |
-| **APP-7** | Application status tracking | P0 | 2 |
+| **APP-3** | Choose: Use Generic OR Custom application | P0 | 2 |
+| **APP-4** | File upload - Video (MP4/WebM, 500MB, 10min) | P0 | 2 |
+| **APP-5** | File upload - Resume PDF (5MB) | P0 | 2 |
+| **APP-6** | File upload - Case Study PDF (10MB) | P0 | 2 |
+| **APP-7** | Save as draft / Submit application | P0 | 2 |
+| **APP-8** | Application status tracking | P0 | 2 |
 | **AI-1** | Video transcription (Deepgram) | P0 | 2 |
 | **AI-2** | CV content extraction (OpenAI GPT-4o) | P0 | 2 |
 | **AI-3** | Case study analysis (OpenAI GPT-4o) | P0 | 2 |
@@ -55,6 +63,96 @@ Phase 2.1 builds the core TalentFlex platform with:
 ## Complete User Stories
 
 ### Candidate User Stories
+
+#### C0: Generic Application (Master Profile)
+```
+EPIC: Generic Application Management
+
+US-C0.1: View generic application page
+  AS A registered candidate
+  I WANT TO access my generic application page
+  SO THAT I can create or manage my reusable master application
+  
+  ACCEPTANCE CRITERIA:
+  - Given I'm logged in as a candidate
+  - When I navigate to /candidate/application
+  - Then I see my generic application status
+  - And I see upload zones for video, resume, portfolio
+  - And I see AI analysis results (if analyzed)
+  - And I see "Analyze" or "Update & Re-Analyze" button
+
+US-C0.2: Create generic application with video
+  AS A candidate
+  I WANT TO upload a general video introduction
+  SO THAT I can reuse it across multiple job applications
+  
+  ACCEPTANCE CRITERIA:
+  - Given I'm on /candidate/application
+  - When I upload a video (MP4/WebM/MOV, max 500MB, max 10 min)
+  - Then the video is uploaded to cloud storage
+  - And I see upload progress indicator
+  - And I see confirmation when complete
+  - And I can preview the uploaded video
+  - And I can replace the video anytime
+
+US-C0.3: Upload master resume to generic application
+  AS A candidate
+  I WANT TO upload my master resume
+  SO THAT I have a comprehensive CV ready for quick applications
+  
+  ACCEPTANCE CRITERIA:
+  - Given I'm on /candidate/application
+  - When I upload a PDF (max 5MB)
+  - Then the file is stored securely
+  - And I see the filename displayed
+  - And I can preview/download it
+  - And I can replace it anytime
+
+US-C0.4: Analyze generic application
+  AS A candidate with video and resume uploaded
+  I WANT TO run AI analysis on my generic application
+  SO THAT I can see my scores and improve before using it
+  
+  ACCEPTANCE CRITERIA:
+  - Given I have both video and resume uploaded
+  - When I click "Analyze My Application"
+  - Then I see a loading state with progress steps
+  - And the video is transcribed (Deepgram)
+  - And the resume is analyzed (OpenAI GPT-4o)
+  - Then I see my scores:
+    - Video: Communication, Clarity, Confidence (1-10 each)
+    - Resume: Presentation, Experience Depth, Skills Breadth (1-10 each)
+    - Overall Score (0-100)
+  - And I see AI summary of my professional profile
+  - And I see suggested job types based on my profile
+  - And I see areas to improve
+
+US-C0.5: Update and re-analyze generic application
+  AS A candidate with an analyzed generic application
+  I WANT TO replace files and re-analyze
+  SO THAT I can improve my scores
+  
+  ACCEPTANCE CRITERIA:
+  - Given my generic application is analyzed
+  - When I click "Replace" on any file
+  - And I upload a new file
+  - Then my status changes to "draft"
+  - When I click "Update & Re-Analyze"
+  - Then a new analysis runs
+  - And my analysis_count increments
+  - And I see updated scores
+
+US-C0.6: View generic application from dashboard
+  AS A candidate
+  I WANT TO see my generic application status on dashboard
+  SO THAT I know if it's ready to use
+  
+  ACCEPTANCE CRITERIA:
+  - Given I'm on /candidate dashboard
+  - Then I see a "My Application" card showing:
+    - Status: Not Created / Draft / Ready (Score: XX)
+    - Link to create or view generic application
+```
 
 #### C1: Apply via Application Link
 ```
@@ -84,13 +182,43 @@ US-C1.2: Sign up from application link
   - Then I'm redirected back to /application/:token
   - And the application is linked to my account (status: draft)
 
-US-C1.3: Upload video introduction
-  AS A candidate with a draft application
-  I WANT TO upload or record my video introduction
-  SO THAT employers can see me present myself
+US-C1.2b: Choose application type
+  AS A candidate with a draft job application
+  I WANT TO choose between using my generic application or creating a custom one
+  SO THAT I can apply quickly or customize for this role
   
   ACCEPTANCE CRITERIA:
-  - Given I'm on my draft application page
+  - Given I've claimed an application and it's in draft status
+  - Then I see two options:
+    - "Use My Generic Application" (if I have one analyzed)
+      - Shows my generic app score
+      - Indicates only case study needed (if required)
+    - "Create Custom Application"
+      - Upload new video, resume, case study for this role
+  - If I don't have a generic application:
+    - I see prompt to "Create Generic Application First" or "Start Custom"
+
+US-C1.3: Apply using generic application
+  AS A candidate with an analyzed generic application
+  I WANT TO use my generic application for this job
+  SO THAT I can apply quickly
+  
+  ACCEPTANCE CRITERIA:
+  - Given I select "Use My Generic Application"
+  - Then the job application links to my generic video and resume
+  - And uses_generic_application is set to TRUE
+  - And I only need to upload case study (if required)
+  - When I click "Analyze My Application"
+  - Then analysis runs against this specific job description
+  - And scores are contextual to the job requirements
+
+US-C1.4: Upload video introduction (custom)
+  AS A candidate creating a custom application
+  I WANT TO upload a job-specific video introduction
+  SO THAT employers can see me address this specific role
+  
+  ACCEPTANCE CRITERIA:
+  - Given I chose "Create Custom Application"
   - Then I see a video upload zone
   - When I upload a video (MP4/WebM/MOV, max 500MB, max 10 min)
   - Then the video is uploaded to cloud storage
@@ -99,20 +227,20 @@ US-C1.3: Upload video introduction
   - And I can preview the uploaded video
   - And I can replace the video before submitting
 
-US-C1.4: Upload resume/CV
-  AS A candidate
-  I WANT TO upload my resume as PDF
-  SO THAT employers can review my experience
+US-C1.5: Upload resume/CV (custom)
+  AS A candidate creating a custom application
+  I WANT TO upload a tailored resume as PDF
+  SO THAT employers can review my relevant experience
   
   ACCEPTANCE CRITERIA:
-  - Given I'm on my draft application
+  - Given I chose "Create Custom Application"
   - When I upload a PDF (max 5MB)
   - Then the file is stored securely
   - And I see the filename displayed
   - And I can download/preview it
   - And I can replace it before submitting
 
-US-C1.5: Upload case study
+US-C1.6: Upload case study
   AS A candidate applying to a role requiring case study
   I WANT TO upload my completed case study
   SO THAT employers can evaluate my analytical skills
@@ -376,6 +504,144 @@ US-A2.1: View all applications pipeline
 
 ## Complete User Flows (Visual)
 
+### Flow 0: Generic Application Setup (One-Time)
+
+```
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│                         GENERIC APPLICATION JOURNEY                                 │
+│                    (Create once, use for many job applications)                    │
+└────────────────────────────────────────────────────────────────────────────────────┘
+
+    ┌─────────────┐
+    │   START     │
+    └──────┬──────┘
+           │
+           ▼
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │  /candidate/application - GENERIC APPLICATION PAGE                      │
+    │  ┌─────────────────────────────────────────────────────────────────┐   │
+    │  │  My Generic Application                                         │   │
+    │  │  "Your reusable master profile for quick applications"          │   │
+    │  │                                                                 │   │
+    │  │  Status: 📝 NOT CREATED                                         │   │
+    │  │                                                                 │   │
+    │  │  Create your generic application to:                            │   │
+    │  │  • Apply to jobs quickly using your master profile              │   │
+    │  │  • Get AI feedback on your presentation                         │   │
+    │  │  • See which roles match your skills                            │   │
+    │  │                                                                 │   │
+    │  │  ┌────────────────────────────────────────────────────────┐    │   │
+    │  │  │  📹 VIDEO INTRODUCTION                                 │    │   │
+    │  │  │  "Tell me about yourself, your background, and goals"  │    │   │
+    │  │  │                                                        │    │   │
+    │  │  │  [📤 Upload Video]                                     │    │   │
+    │  │  │  Formats: MP4, WebM, MOV • Max: 500MB, 10 min          │    │   │
+    │  │  │  Status: ○ Not uploaded                                │    │   │
+    │  │  └────────────────────────────────────────────────────────┘    │   │
+    │  │                                                                 │   │
+    │  │  ┌────────────────────────────────────────────────────────┐    │   │
+    │  │  │  📄 MASTER RESUME                                      │    │   │
+    │  │  │  Your comprehensive, up-to-date resume                 │    │   │
+    │  │  │                                                        │    │   │
+    │  │  │  [📤 Upload PDF]                                       │    │   │
+    │  │  │  Format: PDF • Max: 5MB                                │    │   │
+    │  │  │  Status: ○ Not uploaded                                │    │   │
+    │  │  └────────────────────────────────────────────────────────┘    │   │
+    │  │                                                                 │   │
+    │  │  ┌────────────────────────────────────────────────────────┐    │   │
+    │  │  │  📁 PORTFOLIO (Optional)                               │    │   │
+    │  │  │  General work samples or project links                 │    │   │
+    │  │  │                                                        │    │   │
+    │  │  │  [📤 Add Portfolio]                                    │    │   │
+    │  │  └────────────────────────────────────────────────────────┘    │   │
+    │  │                                                                 │   │
+    │  │  [🔍 Analyze My Application] (disabled until files uploaded)   │   │
+    │  └─────────────────────────────────────────────────────────────────┘   │
+    └────────────────────────────────────────────┬────────────────────────────┘
+                                                 │
+                          ┌──────────────────────┘
+                          │  Candidate uploads video + resume
+                          │
+                          ▼
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │  CLICK "ANALYZE MY APPLICATION"                                         │
+    │  ┌─────────────────────────────────────────────────────────────────┐   │
+    │  │                                                                 │   │
+    │  │  🔄 Analyzing your application...                               │   │
+    │  │                                                                 │   │
+    │  │  ✓ Transcribing video...                          Complete     │   │
+    │  │  ◯ Analyzing resume...                            In progress  │   │
+    │  │  ◯ Generating scores...                           Waiting      │   │
+    │  │                                                                 │   │
+    │  │  This usually takes 1-2 minutes                                 │   │
+    │  │                                                                 │   │
+    │  └─────────────────────────────────────────────────────────────────┘   │
+    │                                                                         │
+    │  Processing:                                                            │
+    │  1. Deepgram transcribes video → text                                   │
+    │  2. OpenAI GPT-4o analyzes resume content                               │
+    │  3. OpenAI GPT-4o scores: Video + CV (general assessment)               │
+    │  4. Generates: overall score, summary, suggested roles                  │
+    └────────────────────────────────────────────┬────────────────────────────┘
+                                                 │
+                                                 ▼
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │  /candidate/application - ANALYZED                                      │
+    │  ┌─────────────────────────────────────────────────────────────────┐   │
+    │  │  My Generic Application                                         │   │
+    │  │  Status: ✅ READY (Score: 82/100)                               │   │
+    │  │                                                                 │   │
+    │  │  ┌──────────────────────────────────────────────────────────┐  │   │
+    │  │  │  📊 AI ANALYSIS RESULTS                                  │  │   │
+    │  │  │  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │  │   │
+    │  │  │                                                          │  │   │
+    │  │  │  OVERALL SCORE                                           │  │   │
+    │  │  │  ┌─────────────────────────────────────────────────────┐ │  │   │
+    │  │  │  │  82/100                             ████████░░      │ │  │   │
+    │  │  │  └─────────────────────────────────────────────────────┘ │  │   │
+    │  │  │                                                          │  │   │
+    │  │  │  "Strong communicator with clear articulation and        │  │   │
+    │  │  │   confident delivery. Well-structured resume with        │  │   │
+    │  │  │   relevant experience. Consider adding more quantifiable │  │   │
+    │  │  │   achievements to strengthen your profile."              │  │   │
+    │  │  │                                                          │  │   │
+    │  │  │  📹 VIDEO: 85/100        📄 RESUME: 79/100              │  │   │
+    │  │  │                                                          │  │   │
+    │  │  │  🎯 Suggested Roles:                                     │  │   │
+    │  │  │  Product Manager, Project Lead, Business Analyst         │  │   │
+    │  │  │                                                          │  │   │
+    │  │  │  ✅ Key Strengths:                                       │  │   │
+    │  │  │  • Excellent verbal communication                        │  │   │
+    │  │  │  • Strong analytical background                          │  │   │
+    │  │  │                                                          │  │   │
+    │  │  │  💡 Areas to Improve:                                    │  │   │
+    │  │  │  • Add more metrics to resume achievements               │  │   │
+    │  │  │  • Include leadership examples in video                  │  │   │
+    │  │  └──────────────────────────────────────────────────────────┘  │   │
+    │  │                                                                 │   │
+    │  │  📎 Your Files:                                                 │   │
+    │  │  • intro_video.mp4        [▶ Play] [🔄 Replace]                │   │
+    │  │  • resume.pdf             [View]   [🔄 Replace]                │   │
+    │  │                                                                 │   │
+    │  │  [🔄 Update & Re-Analyze]                                       │   │
+    │  │                                                                 │   │
+    │  │  ─────────────────────────────────────────────────────────      │   │
+    │  │  💡 Use this application when applying to jobs for faster       │   │
+    │  │     applications. You can always customize for specific roles.  │   │
+    │  └─────────────────────────────────────────────────────────────────┘   │
+    └─────────────────────────────────────────────────────────────────────────┘
+                                                 │
+                                                 ▼
+    ┌─────────────────────────────────────────────────────────────────────────┐
+    │  GENERIC APPLICATION READY!                                             │
+    │                                                                         │
+    │  Candidate can now:                                                     │
+    │  • Apply to jobs quickly using "Use Generic Application" option         │
+    │  • Update files and re-analyze anytime                                  │
+    │  • Still create custom applications for specific roles                  │
+    └─────────────────────────────────────────────────────────────────────────┘
+```
+
 ### Flow 1: Candidate Application Journey
 
 ```
@@ -446,34 +712,87 @@ US-A2.1: View all applications pipeline
                                                               │
                                                               ▼
     ┌──────────────────────────────────────────────────────────────────────────┐
+    │  /application/:token - CHOOSE APPLICATION TYPE                           │
+    │  ┌────────────────────────────────────────────────────────────────────┐  │
+    │  │  Apply for: Senior PM at TechCorp                                  │  │
+    │  │                                                                    │  │
+    │  │  How would you like to apply?                                      │  │
+    │  │                                                                    │  │
+    │  │  ┌──────────────────────────────────────────────────────────────┐  │  │
+    │  │  │  ⚡ USE MY GENERIC APPLICATION                               │  │  │
+    │  │  │                                                              │  │  │
+    │  │  │  Your master profile (Score: 82/100)                         │  │  │
+    │  │  │  ✓ Video intro ready                                         │  │  │
+    │  │  │  ✓ Resume ready                                              │  │  │
+    │  │  │  + Just upload case study for this role                      │  │  │
+    │  │  │                                                              │  │  │
+    │  │  │  [Use Generic Application]                                   │  │  │
+    │  │  └──────────────────────────────────────────────────────────────┘  │  │
+    │  │                                                                    │  │
+    │  │  ┌──────────────────────────────────────────────────────────────┐  │  │
+    │  │  │  ✏️ CREATE CUSTOM APPLICATION                                │  │  │
+    │  │  │                                                              │  │  │
+    │  │  │  Upload new files tailored for this specific role            │  │  │
+    │  │  │  • Custom video addressing this job                          │  │  │
+    │  │  │  • Tailored resume                                           │  │  │
+    │  │  │  • Job-specific case study                                   │  │  │
+    │  │  │                                                              │  │  │
+    │  │  │  [Start Custom Application]                                  │  │  │
+    │  │  └──────────────────────────────────────────────────────────────┘  │  │
+    │  │                                                                    │  │
+    │  │  ─────────────────────────────────────────────────────────────     │  │
+    │  │  💡 No generic application yet?                                    │  │
+    │  │     [Create Your Generic Application →]                            │  │
+    │  └────────────────────────────────────────────────────────────────────┘  │
+    └──────────────────────────────┬───────────────────────────────────────────┘
+                                   │
+              ┌────────────────────┴────────────────────┐
+              │                                         │
+              ▼                                         ▼
+    ┌─────────────────────────────────┐     ┌─────────────────────────────────┐
+    │  OPTION A: USE GENERIC          │     │  OPTION B: CUSTOM APPLICATION   │
+    │  ───────────────────────────    │     │  ────────────────────────────   │
+    │  • Links generic video+resume   │     │  • Upload new video             │
+    │  • Only upload case study       │     │  • Upload new resume            │
+    │  • uses_generic_application=YES │     │  • Upload case study            │
+    └────────────────┬────────────────┘     │  • uses_generic_application=NO  │
+                     │                       └────────────────┬────────────────┘
+                     │                                        │
+                     └────────────────────┬───────────────────┘
+                                          │
+                                          ▼
+    ┌──────────────────────────────────────────────────────────────────────────┐
     │  /application/:token - AUTHENTICATED (DRAFT)                             │
     │  ┌────────────────────────────────────────────────────────────────────┐  │
     │  │  Your Application: Senior PM at TechCorp                           │  │
     │  │  Status: 📝 DRAFT                                                  │  │
+    │  │  Mode: [Using Generic] or [Custom Application]                     │  │
     │  │                                                                    │  │
     │  │  ┌──────────────────────────────────────────────────────────────┐  │  │
     │  │  │  📹 VIDEO INTRODUCTION                              Required │  │  │
-    │  │  │  Record or upload a 5-10 minute video introducing yourself  │  │  │
+    │  │  │  [If Generic] ✓ Using generic video  [Switch to Custom]     │  │  │
+    │  │  │  [If Custom]  Upload a 5-10 minute video                     │  │  │
     │  │  │                                                              │  │  │
     │  │  │  ┌──────────────────────────────────────────────────────┐   │  │  │
     │  │  │  │                                                      │   │  │  │
-    │  │  │  │    [📤 Upload Video]  or  [🎥 Record Now]           │   │  │  │
+    │  │  │  │    [📤 Upload Video]  or  [▶ Preview Generic]        │   │  │  │
     │  │  │  │                                                      │   │  │  │
     │  │  │  │    Formats: MP4, WebM, MOV • Max: 500MB, 10 min     │   │  │  │
     │  │  │  │                                                      │   │  │  │
     │  │  │  └──────────────────────────────────────────────────────┘   │  │  │
-    │  │  │  Status: ○ Not uploaded                                     │  │  │
+    │  │  │  Status: ✓ Ready (from generic) or ○ Not uploaded           │  │  │
     │  │  └──────────────────────────────────────────────────────────────┘  │  │
     │  │                                                                    │  │
     │  │  ┌──────────────────────────────────────────────────────────────┐  │  │
     │  │  │  📄 RESUME/CV                                       Required │  │  │
-    │  │  │                                                              │  │  │
-    │  │  │  [📤 Upload PDF]              Format: PDF • Max: 5MB        │  │  │
-    │  │  │  Status: ○ Not uploaded                                     │  │  │
+    │  │  │  [If Generic] ✓ Using generic resume [Switch to Custom]     │  │  │
+    │  │  │  [If Custom]  [📤 Upload PDF]                                │  │  │
+    │  │  │  Status: ✓ Ready (from generic) or ○ Not uploaded           │  │  │
     │  │  └──────────────────────────────────────────────────────────────┘  │  │
     │  │                                                                    │  │
     │  │  ┌──────────────────────────────────────────────────────────────┐  │  │
     │  │  │  📊 CASE STUDY                                      Required │  │  │
+    │  │  │  (Always job-specific, even when using generic)              │  │  │
     │  │  │                                                              │  │  │
     │  │  │  Instructions:                                               │  │  │
     │  │  │  "Analyze market entry strategy for a B2B SaaS product      │  │  │
@@ -484,14 +803,15 @@ US-A2.1: View all applications pipeline
     │  │  └──────────────────────────────────────────────────────────────┘  │  │
     │  │                                                                    │  │
     │  │  ┌────────────────────┐  ┌────────────────────────────────────┐   │  │
-    │  │  │    Save Draft      │  │    Submit Application (disabled)   │   │  │
+    │  │  │    Save Draft      │  │    🔍 Analyze My Application       │   │  │
     │  │  └────────────────────┘  └────────────────────────────────────┘   │  │
-    │  │                          ⚠️ Upload all required files to submit   │  │
+    │  │                          ⚠️ Upload all required files to analyze  │  │
     │  └────────────────────────────────────────────────────────────────────┘  │
     └──────────────────────────────────────────────────────────┬───────────────┘
                                                                │
                               ┌─────────────────────────────────┐
                               │  Candidate uploads all files    │
+                              │  (or uses generic + case study) │
                               └────────────────┬────────────────┘
                                                │
                                                ▼

@@ -27,8 +27,13 @@ const candidateMenuItems: MenuItem[] = [
     icon: '/icons/view-grid.svg',
   },
   {
+    href: '/candidate/application',
+    label: 'My Application',
+    icon: '/icons/document-text.svg',
+  },
+  {
     href: '/candidate/applications',
-    label: 'My Applications',
+    label: 'Job Applications',
     icon: '/icons/briefcase-sidebar.svg',
   },
   {

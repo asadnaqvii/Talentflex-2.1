@@ -150,7 +150,69 @@ This is the core page of Phase 2.1. Three states:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**State B: Candidate Draft/Analyzed View**
+**State B: Candidate View - Choose Application Type**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Apply for: Job Title at Company                            │
+│                                                             │
+│  How would you like to apply?                               │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  ⚡ USE MY GENERIC APPLICATION                       │   │
+│  │                                                     │   │
+│  │  Your master profile (Score: 82/100)                │   │
+│  │  ✓ Video intro ready                                │   │
+│  │  ✓ Resume ready                                     │   │
+│  │  + Just upload case study for this role             │   │
+│  │                                                     │   │
+│  │  [Use Generic Application]                          │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  ✏️ CREATE CUSTOM APPLICATION                        │   │
+│  │                                                     │   │
+│  │  Upload new files tailored for this specific role   │   │
+│  │  • Custom video addressing this job                 │   │
+│  │  • Tailored resume                                  │   │
+│  │  • Job-specific case study                          │   │
+│  │                                                     │   │
+│  │  [Start Custom Application]                         │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ─────────────────────────────────────────────────────      │
+│  💡 No generic application yet?                             │
+│     [Create Your Generic Application →]                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**State B2: Candidate View - Using Generic (Only Case Study Needed)**
+```
+┌─────────────────────────────────────────────────────────────┐
+│  Your Application: Job Title at Company                     │
+│  Using: Generic Application                                 │
+│  Status: DRAFT                                              │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 📹 Video Introduction          ✓ From Generic       │   │
+│  │     [▶ Preview]  [Switch to Custom Video]           │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 📄 Resume/CV                   ✓ From Generic       │   │
+│  │     [View PDF]  [Switch to Custom Resume]           │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 📊 Case Study                           [Upload]    │   │
+│  │     Instructions: "Analyze market entry..."         │   │
+│  │     Status: ○ Not uploaded                          │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  [Save Draft]  [Analyze My Application]                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**State B3: Candidate Draft/Analyzed View (Custom Application)**
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Your Application: Job Title at Company                     │
@@ -262,7 +324,70 @@ List of all candidate's applications with status, dates, links.
 
 ---
 
-#### 5. `/employer` - Employer Dashboard
+#### 5. `/candidate/application` - Generic Application (Master Profile) ⭐ NEW
+
+This is where candidates create/manage their reusable "master application":
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  My Generic Application                                     │
+│  "Your reusable profile for quick applications"             │
+│                                                             │
+│  Status: ✅ READY (Score: 82/100)                           │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 📹 Video Introduction                    [Replace]   │   │
+│  │     intro_video.mp4 • 8:32 • Uploaded Dec 1          │   │
+│  │     [▶ Preview]                                      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 📄 Master Resume                         [Replace]   │   │
+│  │     resume_2024.pdf • 2 pages • Uploaded Dec 1       │   │
+│  │     [View PDF]                                       │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ 📁 Portfolio (Optional)                  [Add]       │   │
+│  │     Not uploaded yet                                 │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ─────────────────────────────────────────────────────      │
+│                                                             │
+│  📊 AI ANALYSIS                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │ Overall: 82/100                                     │   │
+│  │                                                     │   │
+│  │ "Strong communicator with clear articulation.       │   │
+│  │  Well-structured resume highlighting relevant       │   │
+│  │  experience. Consider adding more quantifiable      │   │
+│  │  achievements."                                     │   │
+│  │                                                     │   │
+│  │ 📹 Video: 85/100   📄 Resume: 79/100               │   │
+│  │                                                     │   │
+│  │ Suggested Roles: Product Manager, Project Lead,    │   │
+│  │                  Business Analyst                   │   │
+│  │                                                     │   │
+│  │ Key Strengths:                                      │   │
+│  │ • Excellent verbal communication                    │   │
+│  │ • Strong analytical background                      │   │
+│  │                                                     │   │
+│  │ Areas to Improve:                                   │   │
+│  │ • Add more metrics to resume achievements           │   │
+│  │ • Include leadership examples in video              │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  [Update & Re-Analyze]                                      │
+│                                                             │
+│  💡 Use this application when applying to jobs for faster   │
+│     applications. You can always customize for specific     │
+│     roles if needed.                                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 6. `/employer` - Employer Dashboard
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -359,7 +484,8 @@ Table of all applications with filters.
 ```tsx
 const candidateMenuItems = [
   { href: '/candidate', label: 'Dashboard', icon: '...' },
-  { href: '/candidate/applications', label: 'My Applications', icon: '...' },
+  { href: '/candidate/application', label: 'My Application', icon: '...' }, // Generic app
+  { href: '/candidate/applications', label: 'Job Applications', icon: '...' },
   { href: '/candidate/profile', label: 'My Profile', icon: '...' },
 ];
 
@@ -370,7 +496,7 @@ const employerMenuItems = [
 ];
 
 const adminMenuItems = [
-  { href: '/admin/create-application', label: 'Create Application', icon: '...' },
+  { href: '/admin/create-application', label: 'Create Link', icon: '...' },
   { href: '/admin/pipeline', label: 'Pipeline', icon: '...' },
 ];
 ```
@@ -519,7 +645,62 @@ export interface CompanyProfile {
 }
 
 // ============================================
-// APPLICATION TYPES
+// GENERIC APPLICATION TYPES
+// ============================================
+
+export interface GenericApplication {
+  id: string;
+  candidateId: string;
+  status: 'draft' | 'analyzed';
+  analysisStatus: AnalysisStatus;
+  files: GenericApplicationFile[];
+  analysis?: GenericApplicationAnalysis;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GenericApplicationFile {
+  id: string;
+  genericApplicationId: string;
+  fileType: 'video' | 'resume' | 'cover_letter'; // cover_letter used as portfolio
+  fileUrl: string;
+  originalFilename: string;
+  mimeType: string;
+  sizeBytes: number;
+  durationSeconds?: number;
+  transcriptionText?: string;
+  uploadedAt: string;
+}
+
+export interface GenericApplicationAnalysis {
+  id: string;
+  genericApplicationId: string;
+  
+  // Video scores
+  videoCommunicationScore?: number;
+  videoClarityScore?: number;
+  videoConfidenceScore?: number;
+  videoOverallScore?: number;
+  
+  // CV scores (general assessment)
+  cvPresentationScore?: number;
+  cvExperienceDepthScore?: number;
+  cvSkillsBreadthScore?: number;
+  cvOverallScore?: number;
+  
+  // Overall
+  overallScore: number;
+  aiSummary: string;
+  keyStrengths?: string[];
+  suggestedRoles?: string[];
+  areasToImprove?: string[];
+  
+  analysisCount: number;
+  createdAt: string;
+}
+
+// ============================================
+// JOB-SPECIFIC APPLICATION TYPES
 // ============================================
 
 export type ApplicationStatus = 'unclaimed' | 'draft' | 'analyzed' | 'submitted';
@@ -539,6 +720,11 @@ export interface JobApplication {
   requiresVideo: boolean;
   requiresResume: boolean;
   requiresCaseStudy: boolean;
+  
+  // Generic application link
+  usesGenericApplication: boolean;
+  genericApplicationId?: string;
+  
   candidateId?: string;
   status: ApplicationStatus;
   analysisStatus: AnalysisStatus;
@@ -639,6 +825,8 @@ src/app/
 │   │
 │   ├── candidate/
 │   │   ├── page.tsx              # Candidate dashboard
+│   │   ├── application/
+│   │   │   └── page.tsx          # ⭐ Generic application (master profile)
 │   │   ├── profile/
 │   │   │   └── page.tsx          # Candidate profile
 │   │   └── applications/
@@ -662,7 +850,7 @@ src/app/
 │
 ├── application/
 │   └── [token]/
-│       └── page.tsx              # Main application page (all states)
+│       └── page.tsx              # Job-specific application page (all states)
 │
 └── notifications/
     └── page.tsx                  # Keep existing

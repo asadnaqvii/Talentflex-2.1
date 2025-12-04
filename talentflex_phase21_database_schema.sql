@@ -98,10 +98,77 @@ CREATE TABLE company_profiles (
 );
 
 -- ============================================
--- APPLICATION TABLES
+-- GENERIC APPLICATION (Reusable Master Application)
 -- ============================================
 
--- Job applications (created by internal team)
+-- Each candidate can have ONE generic application (their "master" profile application)
+CREATE TABLE generic_applications (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    candidate_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    
+    -- Status (no 'submitted' state - generic apps are always available)
+    status application_status DEFAULT 'draft', -- draft or analyzed
+    analysis_status analysis_status DEFAULT 'pending',
+    
+    -- Metadata
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Generic application files (video, resume, portfolio)
+CREATE TABLE generic_application_files (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    generic_application_id UUID NOT NULL REFERENCES generic_applications(id) ON DELETE CASCADE,
+    file_type file_type NOT NULL, -- 'video', 'resume', or 'cover_letter' as portfolio
+    file_url TEXT NOT NULL,
+    original_filename VARCHAR(255),
+    mime_type VARCHAR(100),
+    size_bytes BIGINT,
+    duration_seconds INTEGER, -- For video
+    transcription_text TEXT, -- For video (from Deepgram)
+    uploaded_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(generic_application_id, file_type)
+);
+
+-- Generic application analysis (no job-specific context)
+CREATE TABLE generic_application_analysis (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    generic_application_id UUID UNIQUE NOT NULL REFERENCES generic_applications(id) ON DELETE CASCADE,
+    
+    -- Video scores (1-10) - General communication assessment
+    video_communication_score DECIMAL(3,1),
+    video_clarity_score DECIMAL(3,1),
+    video_confidence_score DECIMAL(3,1),
+    video_overall_score DECIMAL(3,1),
+    
+    -- CV scores (1-10) - General quality assessment
+    cv_presentation_score DECIMAL(3,1), -- How well-formatted/readable
+    cv_experience_depth_score DECIMAL(3,1), -- Quality of experience descriptions
+    cv_skills_breadth_score DECIMAL(3,1), -- Range and relevance of skills
+    cv_overall_score DECIMAL(3,1),
+    
+    -- Overall (general professional assessment)
+    overall_score INTEGER CHECK (overall_score >= 0 AND overall_score <= 100),
+    ai_summary TEXT, -- General professional summary
+    key_strengths TEXT[],
+    suggested_roles TEXT[], -- AI-suggested job types based on profile
+    areas_to_improve TEXT[], -- Suggestions for strengthening application
+    
+    -- Metadata
+    analysis_count INTEGER DEFAULT 1,
+    raw_analysis_response JSONB,
+    processing_time_ms INTEGER,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_generic_apps_candidate ON generic_applications(candidate_id);
+
+-- ============================================
+-- JOB-SPECIFIC APPLICATION TABLES
+-- ============================================
+
+-- Job applications (created by internal team via application links)
 CREATE TABLE job_applications (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     token VARCHAR(64) UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(32), 'hex'),
@@ -119,6 +186,12 @@ CREATE TABLE job_applications (
     requires_resume BOOLEAN DEFAULT TRUE,
     requires_case_study BOOLEAN DEFAULT FALSE,
     requires_cover_letter BOOLEAN DEFAULT FALSE,
+    
+    -- Application source: custom uploads OR linked from generic application
+    uses_generic_application BOOLEAN DEFAULT FALSE,
+    generic_application_id UUID REFERENCES generic_applications(id) ON DELETE SET NULL,
+    -- If uses_generic_application = TRUE, video & resume come from generic_application
+    -- Case study is ALWAYS job-specific (uploaded to application_files)
     
     -- Candidate assignment
     candidate_id UUID REFERENCES users(id) ON DELETE SET NULL,

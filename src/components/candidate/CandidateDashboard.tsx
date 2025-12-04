@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import TopBar from '@/components/layout/TopBar';
-import { JobApplication, Notification } from '@/types';
+import { JobApplication, Notification, GenericApplication, GenericApplicationAnalysis } from '@/types';
 
 // Mock data for development
 const mockApplications: JobApplication[] = [
@@ -84,6 +84,40 @@ const mockNotifications: Notification[] = [
   },
 ];
 
+// Mock generic application data
+const mockGenericApplication: GenericApplication = {
+  id: '1',
+  candidateId: 'user-1',
+  videoUrl: '/mock-video.mp4',
+  videoFilename: 'my-introduction.mp4',
+  videoDurationSeconds: 420,
+  resumeUrl: '/mock-resume.pdf',
+  resumeFilename: 'sarah-johnson-resume.pdf',
+  status: 'analyzed',
+  analysisStatus: 'completed',
+  createdAt: '2024-11-01T10:00:00Z',
+  updatedAt: '2024-12-01T10:00:00Z',
+};
+
+const mockGenericAnalysis: GenericApplicationAnalysis = {
+  id: '1',
+  genericApplicationId: '1',
+  videoCommunicationScore: 8.5,
+  videoClarityScore: 9.0,
+  videoConfidenceScore: 8.0,
+  videoOverallScore: 8.5,
+  cvPresentationScore: 9.0,
+  cvExperienceDepthScore: 8.5,
+  cvSkillsBreadthScore: 9.0,
+  cvOverallScore: 8.8,
+  overallScore: 85,
+  aiSummary: 'Strong candidate with excellent communication skills.',
+  suggestedJobTypes: ['Senior Product Manager', 'Product Lead'],
+  keyStrengths: ['Excellent communication', 'Strong technical background'],
+  createdAt: '2024-12-01T10:00:00Z',
+  updatedAt: '2024-12-01T10:00:00Z',
+};
+
 export default function CandidateDashboard() {
   const stats = {
     total: mockApplications.length,
@@ -140,6 +174,57 @@ export default function CandidateDashboard() {
             <p className="text-[#676767]">
               Here&apos;s an overview of your applications and activity.
             </p>
+          </div>
+
+          {/* My Application Card */}
+          <div className="mb-8">
+            <Link
+              href="/candidate/application"
+              className="block bg-gradient-to-r from-[#EFF5FF] to-[#F3E8FF] rounded-xl p-6 hover:shadow-lg transition-all border border-[#3D80F8]/20"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-gradient-to-br from-[#3D80F8] to-[#7C3AED] rounded-xl flex items-center justify-center">
+                    <User className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[#1A1A1A] mb-1">My Application</h3>
+                    {mockGenericApplication.status === 'analyzed' ? (
+                      <div className="flex items-center gap-3">
+                        <span className="px-2 py-1 bg-[#E8F5E9] text-[#2E7D32] text-xs font-medium rounded-full">
+                          Ready
+                        </span>
+                        <span className="text-sm text-[#676767]">
+                          Score: <span className="font-bold text-[#3D80F8]">{mockGenericAnalysis.overallScore}%</span>
+                        </span>
+                      </div>
+                    ) : mockGenericApplication.videoUrl ? (
+                      <span className="px-2 py-1 bg-[#FFF3E0] text-[#E65100] text-xs font-medium rounded-full">
+                        Ready to Analyze
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 bg-[#F6F6F6] text-[#676767] text-xs font-medium rounded-full">
+                        Not Set Up
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-[#3D80F8]">
+                  <span className="text-sm font-medium hidden sm:inline">View & Edit</span>
+                  <ArrowRight className="w-5 h-5" />
+                </div>
+              </div>
+              {mockGenericApplication.status === 'analyzed' && mockGenericAnalysis.suggestedJobTypes && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="text-xs text-[#676767]">Suggested roles:</span>
+                  {mockGenericAnalysis.suggestedJobTypes.slice(0, 2).map((job, i) => (
+                    <span key={i} className="px-2 py-1 bg-white/60 text-[#676767] text-xs rounded-full">
+                      {job}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </Link>
           </div>
 
           {/* Stats Cards */}

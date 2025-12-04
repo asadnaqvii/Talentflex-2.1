@@ -3,6 +3,84 @@
 
 ---
 
+## Application Types Overview
+
+TalentFlex supports TWO types of candidate applications:
+
+### 1. Generic Application (Master Profile)
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  GENERIC APPLICATION                                                        │
+│  Location: /candidate/application                                           │
+│                                                                             │
+│  📹 Generic Video Intro                                                     │
+│     "Tell me about yourself, your background, and career goals"             │
+│     • 5-10 minute introduction                                              │
+│     • General professional pitch                                            │
+│                                                                             │
+│  📄 Master Resume/CV                                                        │
+│     • Latest comprehensive resume                                           │
+│     • Updated skills and experience                                         │
+│                                                                             │
+│  📁 Portfolio (Optional)                                                    │
+│     • General work samples                                                  │
+│     • Links to projects                                                     │
+│                                                                             │
+│  AI ANALYSIS (General Assessment):                                          │
+│  • Video: Communication, Clarity, Confidence                                │
+│  • CV: Presentation, Experience Depth, Skills Breadth                       │
+│  • Overall Score + Suggested Job Types                                      │
+│                                                                             │
+│  ✅ Created once, reused for multiple applications                          │
+│  ✅ Can be updated anytime (triggers re-analysis)                           │
+│  ✅ Employers can view as part of candidate profile                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 2. Job-Specific Application (Via Application Link)
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  JOB-SPECIFIC APPLICATION                                                   │
+│  Location: /application/[token]                                             │
+│                                                                             │
+│  When applying to a specific job, candidate chooses:                        │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  OPTION A: Use Generic Application                                  │   │
+│  │  ─────────────────────────────────                                  │   │
+│  │  ✓ Uses existing generic video                                      │   │
+│  │  ✓ Uses existing generic CV                                         │   │
+│  │  + Upload job-specific case study (if required)                     │   │
+│  │                                                                     │   │
+│  │  Benefits:                                                          │   │
+│  │  • Faster application (files already uploaded)                      │   │
+│  │  • Consistent professional presentation                             │   │
+│  │  • Only need to focus on case study                                 │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────────────┐   │
+│  │  OPTION B: Custom Application                                       │   │
+│  │  ─────────────────────────────                                      │   │
+│  │  • Upload job-specific video (tailored intro)                       │   │
+│  │  • Upload tailored CV (role-specific emphasis)                      │   │
+│  │  • Upload custom case study                                         │   │
+│  │                                                                     │   │
+│  │  Benefits:                                                          │   │
+│  │  • Fully customized for this specific role                          │   │
+│  │  • Higher potential match score                                     │   │
+│  │  • Addresses specific job requirements                              │   │
+│  └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                             │
+│  AI ANALYSIS (Job-Specific):                                                │
+│  • Analyzes against job description & requirements                          │
+│  • Video: Communication, Clarity, Confidence (in job context)              │
+│  • CV: Relevance, Experience Match, Skills Match                           │
+│  • Case Study: Problem Solving, Analytical Depth, Presentation             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## Quick Reference: Final Decisions
 
 | Decision | Choice |
@@ -647,8 +725,17 @@ GET    /api/auth/me              → Get current user
 
 ### Applications
 ```
+# Generic Application (Master Profile)
+GET    /api/candidate/generic-application       → Get candidate's generic application
+POST   /api/candidate/generic-application       → Create generic application
+POST   /api/candidate/generic-application/files → Upload file to generic application
+POST   /api/candidate/generic-application/analyze → Run AI analysis on generic
+PUT    /api/candidate/generic-application       → Update generic application
+
+# Job-Specific Applications
 GET    /api/applications/by-token/:token    → Get application by token (public)
 POST   /api/applications/:id/claim          → Claim application (candidate)
+POST   /api/applications/:id/use-generic    → Link generic application to this job app
 POST   /api/applications/:id/files          → Get presigned upload URL
 POST   /api/applications/:id/files/:type/replace → Replace a specific file (resets to 'draft')
 PUT    /api/applications/:id/draft          → Save draft
